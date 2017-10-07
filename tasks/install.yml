@@ -1,0 +1,7 @@
+---
+
+- name: Install hostapd packages
+  package:
+    name: '{{ item }}'
+    state: present
+  with_items: '{{ hostapd__packages }}'

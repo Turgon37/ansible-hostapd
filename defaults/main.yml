@@ -1,0 +1,82 @@
+---
+# defaults file for hostapd
+
+# Simple placeholder to allow other roles to detect this role
+hostapd__role: True
+
+# List of required packages
+hostapd__packages:
+  - hostapd
+
+# The path to the configuration file
+hostapd__config_file: /etc/hostapd/hostapd.conf
+hostapd__accept_mac_file: /etc/hostapd.accept
+hostapd__deny_mac_file: /etc/hostapd.deny
+
+# The name of the service to use
+hostapd__service_name: hostapd
+
+# List of accepted mac addresses
+hostapd__accept_mac: []
+
+# List of denied mac addresses
+hostapd__deny_mac: []
+
+
+#
+# Hostapd configuration
+#
+
+# The network interface to use
+#hostapd__interface: 
+
+# The SSID of the Wifi network
+#hostapd__ssid: 
+
+# Select country code for frequencies limitations
+hostapd__country_code : FR
+
+# Enable control of power emitting
+hostapd__ieee80211d: True
+
+# Enable dynamic frequency selection on 5GHz bands
+hostapd__ieee80211h: True
+
+# Enable 450Mbit enhancements for 2.4GHz and 5GHz
+hostapd__ieee80211n: True
+
+# Oprational mode
+# a => 54M on 5GHz
+# b => 11M on 2.4GHz
+# g => 54M on 2.4GHz
+# ad => 6,75G on 60GHz
+hostapd__hw_mode: g
+
+# Select the channel or acs_survey for automatic selection
+#hostapd__channel: acs_survey
+hostapd__channel: 1
+
+# Number of channels scan
+hostapd__acs_num_scans: 5
+
+# beacon frames interval
+hostapd__beacon_int: 100
+
+# Station MAC address -based authentication
+hostapd__macaddr_acl: 0
+
+# Max number of station
+hostapd__max_num_sta: 30
+
+# Type of authentication
+hostapd__auth_algs: 1
+
+# Version of WPA to use
+hostapd__wpa: 2
+
+#hostapd__wpa_psk:
+#hostapd__wpa_passphrase:
+
+hostapd__wpa_key_mgmt: WPA-PSK
+
+hostapd__wpa_pairwise: CCMP

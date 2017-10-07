@@ -1,0 +1,7 @@
+---
+# handlers file for hostapd
+
+- name: restart-hostapd
+  service:
+    name: '{{ hostapd__service_name }}'
+    state: restarted

@@ -1,0 +1,7 @@
+---
+
+- name: Ensure hostapd is started and enabled on boot
+  service:
+    name: "{{ hostapd__service_name }}"
+    enabled: yes
+    state: started

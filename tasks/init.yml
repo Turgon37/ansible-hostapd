@@ -1,0 +1,10 @@
+---
+
+- name: Assert required variables
+  assert:
+    that:
+      - hostapd__ssid is defined
+      - hostapd__interface is defined
+      - hostapd__country_code is defined and hostapd__country_code|length == 2
+      - hostapd__hw_mode is defined and hostapd__hw_mode in ['a', 'b', 'g', 'ad']
+      - (hostapd__wpa_psk is defined and hostapd__wpa_passphrase is not defined) or (hostapd__wpa_psk is not defined and hostapd__wpa_passphrase is defined)
