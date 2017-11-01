@@ -23,3 +23,6 @@
 
 - import_tasks: service.yml
   tags: ['hostapd', 'hostapd-service']
+
+- include_tasks: facts.yml
+  when: hostapd__facts|bool

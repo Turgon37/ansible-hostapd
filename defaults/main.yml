@@ -4,6 +4,9 @@
 # Simple placeholder to allow other roles to detect this role
 hostapd__role: True
 
+# Enable facts deploiement
+hostapd__facts: True
+
 # List of required packages
 hostapd__packages:
   - hostapd
