@@ -12,6 +12,8 @@
 
 - name: Reload systemd
   systemd:
+    name:          '{{ hostapd__service_name }}'
+    enabled:       yes
     daemon_reload: yes
   when: _hostapd_service|changed and ansible_service_mgr == 'systemd'
 

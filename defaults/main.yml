@@ -21,7 +21,7 @@ hostapd__service_name: hostapd
 
 # Path to hostapd binary executable
 hostapd__executable: /usr/sbin/hostapd
-
+# Path to hostapd pidfile
 hostapd__service_pidfile: /run/hostapd.pid
 
 # Set to yes to deploy and override systemd service configuration
