@@ -1,7 +1,22 @@
 ---
 
+- name: install hostapd.service systemd unit file
+  template:
+    src:   hostapd.service.j2
+    dest:  /etc/systemd/system/hostapd.service
+    owner: root
+    group: root
+    mode:  0755
+  when: hostapd__service_configure_systemd|bool and ansible_service_mgr == 'systemd'
+  register: _hostapd_service
+
+- name: Reload systemd
+  systemd:
+    daemon_reload: yes
+  when: _hostapd_service|changed and ansible_service_mgr == 'systemd'
+
 - name: Ensure hostapd is started and enabled on boot
   service:
-    name: "{{ hostapd__service_name }}"
+    name:    '{{ hostapd__service_name }}'
     enabled: yes
-    state: started
+    state:   started

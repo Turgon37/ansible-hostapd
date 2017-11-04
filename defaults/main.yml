@@ -19,6 +19,14 @@ hostapd__deny_mac_file: /etc/hostapd.deny
 # The name of the service to use
 hostapd__service_name: hostapd
 
+# Path to hostapd binary executable
+hostapd__executable: /usr/sbin/hostapd
+
+hostapd__service_pidfile: /run/hostapd.pid
+
+# Set to yes to deploy and override systemd service configuration
+hostapd__service_configure_systemd: False
+
 # List of accepted mac addresses
 hostapd__accept_mac: []
 
