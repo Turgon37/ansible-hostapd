@@ -10,6 +10,12 @@
   when: hostapd__service_configure_systemd|bool and ansible_service_mgr == 'systemd'
   register: _hostapd_service
 
+- name: remove sysvinit unit file
+  file:
+    path:  /etc/init.d/hostapd
+    state: absent
+  when: hostapd__service_configure_systemd|bool and ansible_service_mgr == 'systemd'
+
 - name: Reload systemd
   systemd:
     name:          '{{ hostapd__service_name }}'
