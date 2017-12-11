@@ -7,6 +7,9 @@ hostapd__role: True
 # Enable facts deploiement
 hostapd__facts: True
 
+# Choose the monitoring backend to configure (if available)
+#hostapd__monitoring:
+
 # List of required packages
 hostapd__packages:
   - hostapd
@@ -39,31 +42,53 @@ hostapd__deny_mac: []
 #
 
 # The network interface to use
+# AP netdevice name (without 'ap' postfix, i.e., wlan0 uses wlan0ap for
+# management frames); ath0 for madwifi
 #hostapd__interface: 
+
+# Interface for separate control program. If this is specified, hostapd
+# will create this directory and a UNIX domain socket for listening to requests
+# from external programs (CLI/GUI, etc.) for status information and
+# configuration.
+hostapd__ctrl_interface: /var/run/hostapd
+
+# Access control for the control interface can be configured by setting the
+# directory to allow only members of a group to use sockets. This way, it is
+# possible to run hostapd as root (since it needs to change network
+# configuration and open raw sockets) and still allow GUI/CLI components to be
+# run as non-root users.
+# This variable can be a group name or gid.
+hostapd__ctrl_interface_group: 0
 
 # The SSID of the Wifi network
 #hostapd__ssid: 
 
-# Select country code for frequencies limitations
+# Select country code (ISO/IEC 3166-1) for frequencies limitations
 hostapd__country_code : FR
 
-# Enable control of power emitting
+# Enable IEEE 802.11d control of power emitting
 hostapd__ieee80211d: True
 
-# Enable dynamic frequency selection on 5GHz bands
+# Enable IEEE 802.11h. This enables radar detection and DFS support if
+# available. DFS support is required on outdoor 5 GHz channels in most countries
+# of the world. This can be used only with ieee80211d=1.
+# Dynamic frequency selection on 5GHz bands
 hostapd__ieee80211h: True
 
-# Enable 450Mbit enhancements for 2.4GHz and 5GHz
+# Enable 450Mbit enhancements for 2.4GHz and 5GHz IEEE 802.11n (HT)
+# Note: You will also need to enable WMM for full HT functionality.
 hostapd__ieee80211n: True
 
-# Oprational mode
+# Operation mode a = IEEE 802.11a, b = IEEE 802.11b, g = IEEE 802.11g, ad = IEEE 802.11ad
 # a => 54M on 5GHz
 # b => 11M on 2.4GHz
 # g => 54M on 2.4GHz
 # ad => 6,75G on 60GHz
 hostapd__hw_mode: g
 
-# Select the channel or acs_survey for automatic selection
+# Select the channel number (IEEE 802.11) or acs_survey for automatic selection
+# ACS tuning - Automatic Channel Selection
+# See: http://wireless.kernel.org/en/users/Documentation/acs
 #hostapd__channel: acs_survey
 hostapd__channel: 1
 

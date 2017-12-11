@@ -1,10 +1,9 @@
+{%- import '_macros.j2' as macros with context -%}
 # 
 # {{ ansible_managed }}
 #
-##### hostapd configuration file
 
-# AP netdevice name (without 'ap' postfix, i.e., wlan0 uses wlan0ap for
-# management frames); ath0 for madwifi
+##### General configuration #######################################
 interface={{ hostapd__interface }}
 
 # In case of madwifi, atheros, and nl80211 driver interfaces, an additional
@@ -53,50 +52,19 @@ logger_syslog_level=2
 logger_stdout=-1
 logger_stdout_level=2
 
-# Interface for separate control program. If this is specified, hostapd
-# will create this directory and a UNIX domain socket for listening to requests
-# from external programs (CLI/GUI, etc.) for status information and
-# configuration. The socket file will be named based on the interface name, so
-# multiple hostapd processes/interfaces can be run at the same time if more
-# than one interface is used.
-# /var/run/hostapd is the recommended directory for sockets and by default,
-# hostapd_cli will use it when trying to connect with hostapd.
-ctrl_interface=/var/run/hostapd
-
-# Access control for the control interface can be configured by setting the
-# directory to allow only members of a group to use sockets. This way, it is
-# possible to run hostapd as root (since it needs to change network
-# configuration and open raw sockets) and still allow GUI/CLI components to be
-# run as non-root users. However, since the control interface can be used to
-# change the network configuration, this access needs to be protected in many
-# cases. By default, hostapd is configured to use gid 0 (root). If you
-# want to allow non-root users to use the contron interface, add a new group
-# and change this value to match with that group. Add users that should have
-# control interface access to this group.
-#
-# This variable can be a group name or gid.
-#ctrl_interface_group=wheel
-ctrl_interface_group=0
+ctrl_interface={{ hostapd__ctrl_interface }}
+ctrl_interface_group={{ hostapd__ctrl_interface_group }}
 
 
 ##### IEEE 802.11 related configuration #######################################
-
-# SSID to be used in IEEE 802.11 management frames
 ssid={{ hostapd__ssid }}
 
 # UTF-8 SSID: Whether the SSID is to be interpreted using UTF-8 encoding
 #utf8_ssid=1
 
-# Country code (ISO/IEC 3166-1).
-country_code={{ hostapd__country_code  }}
-
-# Enable IEEE 802.11d.
-ieee80211d={{ hostapd__ieee80211d | d(False) | bool | ternary(1, 0) }}
-
-# Enable IEEE 802.11h. This enables radar detection and DFS support if
-# available. DFS support is required on outdoor 5 GHz channels in most countries
-# of the world. This can be used only with ieee80211d=1.
-ieee80211h={{ hostapd__ieee80211h | d(False) | bool | ternary(1, 0) }}
+country_code={{ hostapd__country_code }}
+ieee80211d={{ macros.bool(hostapd__ieee80211d|d(False)) }}
+ieee80211h={{ macros.bool(hostapd__ieee80211h|d(False)) }}
 
 # Add Power Constraint element to Beacon and Probe Response frames
 # This config option adds Power Constraint element when applicable and Country
@@ -112,14 +80,8 @@ ieee80211h={{ hostapd__ieee80211h | d(False) | bool | ternary(1, 0) }}
 # ieee80211d=1 and local_pwr_constraint configured.
 #spectrum_mgmt_required=1
 
-# Operation mode a = IEEE 802.11a, b = IEEE 802.11b, g = IEEE 802.11g, ad = IEEE 802.11ad
 hw_mode={{ hostapd__hw_mode }}
-
-# Channel number (IEEE 802.11)
 channel={{ hostapd__channel }}
-
-# ACS tuning - Automatic Channel Selection
-# See: http://wireless.kernel.org/en/users/Documentation/acs
 acs_num_scans={{ hostapd__acs_num_scans }}
 
 # Channel list restriction. This option allows hostapd to select one of the
@@ -410,10 +372,7 @@ wmm_ac_vo_acm=0
 #bss_load_test=12:80:20000
 
 ##### IEEE 802.11n related configuration ######################################
-
-# ieee80211n: Whether IEEE 802.11n (HT) is enabled
-# Note: You will also need to enable WMM for full HT functionality.
-ieee80211n={{ hostapd__ieee80211n | d(False) | bool | ternary(1, 0) }}
+ieee80211n={{ macros.bool(hostapd__ieee80211n|d(False)) }}
 
 # ht_capab: HT capabilities (list of flags)
 # LDPC coding capability: [LDPC] = supported

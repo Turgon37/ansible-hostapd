@@ -1,0 +1,9 @@
+{#
+ # Produce a hostapd boolean
+ #
+ # @param value : the value to booleanize
+ # @return string
+ #}
+{%- macro bool(value) -%}
+{{ value|bool|ternary(1, 0) }}
+{%- endmacro -%}
