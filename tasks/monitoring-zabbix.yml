@@ -1,0 +1,29 @@
+---
+
+- name: Install hostapd configuration file
+  template:
+    src:   hostapd_cli.py.j2
+    dest:  '{{ hostapd__monitoring_cli_scripts_path }}'
+    owner: root
+    group: root
+    mode:  0755
+
+- name: Configure zabbix userparameters
+  include_role:
+    name: zabbix-common
+    tasks_from: userparameter
+  vars:
+    zabbix_common__userparameter:
+      name: hostapd
+      comment: Use hostapd_cli to interogate the hostapd service
+      userparameter:
+        - key: hostapd.ping
+          command: >
+            /bin/bash -c 'if hostapd_cli -p{{ hostapd__ctrl_interface }} -i{{ hostapd__interface }} ping 2>/dev/null | grep PONG 1>/dev/null 2>&1; then echo -n 1; else echo -n 0; fi'
+          sudo: '{{ hostapd__monitoring_use_sudo }}'
+          comment: 'check if hostapd is alive'
+        - key: hostapd.stations
+          command: '{{ hostapd__monitoring_cli_scripts_path }}'
+          sudo: '{{ hostapd__monitoring_use_sudo }}'
+          comment: 'get all stations mibs'
+      state: present

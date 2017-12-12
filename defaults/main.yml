@@ -14,6 +14,11 @@ hostapd__facts: True
 hostapd__packages:
   - hostapd
 
+# Use sudo to call hostapd_cli
+hostapd__monitoring_use_sudo: True
+# Path where to install the hostapd cli script
+hostapd__monitoring_cli_scripts_path: /usr/local/bin/hostapd_cli.py
+
 # The path to the configuration file
 hostapd__config_file: /etc/hostapd/hostapd.conf
 hostapd__accept_mac_file: /etc/hostapd.accept
@@ -37,10 +42,7 @@ hostapd__accept_mac: []
 hostapd__deny_mac: []
 
 
-#
-# Hostapd configuration
-#
-
+### General configuration
 # The network interface to use
 # AP netdevice name (without 'ap' postfix, i.e., wlan0 uses wlan0ap for
 # management frames); ath0 for madwifi
@@ -60,6 +62,8 @@ hostapd__ctrl_interface: /var/run/hostapd
 # This variable can be a group name or gid.
 hostapd__ctrl_interface_group: 0
 
+
+### IEEE 802.11 related configuration
 # The SSID of the Wifi network
 #hostapd__ssid: 
 
