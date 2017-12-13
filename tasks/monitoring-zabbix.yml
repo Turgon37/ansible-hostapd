@@ -1,9 +1,17 @@
 ---
 
+- name: Create custom scripts directory
+  file:
+    path:  "{{ zabbix_agent__custom_scripts_directory|d('/opt/zabbix-agent-scripts') }}"
+    owner: root
+    group: root
+    mode:  0755
+    state: directory
+
 - name: Install hostapd configuration file
   template:
     src:   hostapd_cli.py.j2
-    dest:  '{{ hostapd__monitoring_cli_scripts_path }}'
+    dest:  "{{ zabbix_agent__custom_scripts_directory|d('/opt/zabbix-agent-scripts') }}/hostapd_cli.py"
     owner: root
     group: root
     mode:  0755
@@ -23,7 +31,7 @@
           sudo: '{{ hostapd__monitoring_use_sudo }}'
           comment: 'check if hostapd is alive'
         - key: hostapd.stations
-          command: '{{ hostapd__monitoring_cli_scripts_path }}'
+          command: "{{ zabbix_agent__custom_scripts_directory|d('/opt/zabbix-agent-scripts') }}/hostapd_cli.py"
           sudo: '{{ hostapd__monitoring_use_sudo }}'
           comment: 'get all stations mibs'
       state: present
