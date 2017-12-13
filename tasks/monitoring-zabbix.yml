@@ -10,7 +10,7 @@
 
 - name: Install hostapd configuration file
   template:
-    src:   hostapd_cli.py.j2
+    src:   hostapd_cli_stations.py.j2
     dest:  "{{ zabbix_agent__custom_scripts_directory|d('/opt/zabbix-agent-scripts') }}/hostapd_cli.py"
     owner: root
     group: root
@@ -31,7 +31,7 @@
           sudo: '{{ hostapd__monitoring_use_sudo }}'
           comment: 'check if hostapd is alive'
         - key: hostapd.stations
-          command: "{{ zabbix_agent__custom_scripts_directory|d('/opt/zabbix-agent-scripts') }}/hostapd_cli.py"
+          command: "{{ zabbix_agent__custom_scripts_directory|d('/opt/zabbix-agent-scripts') }}/hostapd_cli_stations.py"
           sudo: '{{ hostapd__monitoring_use_sudo }}'
           comment: 'get all stations mibs'
       state: present
