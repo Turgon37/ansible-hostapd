@@ -11,7 +11,7 @@
 - name: Install hostapd configuration file
   template:
     src:   hostapd_cli_stations.py.j2
-    dest:  "{{ zabbix_agent__custom_scripts_directory|d('/opt/zabbix-agent-scripts') }}/hostapd_cli.py"
+    dest:  "{{ zabbix_agent__custom_scripts_directory|d('/opt/zabbix-agent-scripts') }}/hostapd_cli_stations.py"
     owner: root
     group: root
     mode:  0755
