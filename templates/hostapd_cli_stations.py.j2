@@ -55,11 +55,11 @@ if args.discovery:
     if args.discovery_format == 'zabbix':
         data = []
         for station in content['stations']:
-            item = dict({'{#STAMAC}': station['mac']})
+            item = dict({'{{ '{#' }}STAMAC}': station['mac']})
             for key in station:
                 if key == 'mac':
                     continue
-                item['{#STA'+key+'}'] = station[key]
+                item['{{ '{#' }}STA'+key+'}'] = station[key]
             data.append(item)
         print(json.dumps(data))
     else:
