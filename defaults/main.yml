@@ -24,6 +24,7 @@ hostapd__deny_mac_file: /etc/hostapd.deny
 
 # The name of the service to use
 hostapd__service_name: hostapd
+hostapd__service_enabled: True
 
 # Path to hostapd binary executable
 hostapd__executable: /usr/sbin/hostapd
