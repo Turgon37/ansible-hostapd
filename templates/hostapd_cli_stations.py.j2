@@ -51,7 +51,7 @@ if len(content) == 0:
 
 if args.count:
     print(content['stations_number'])
-if args.discovery:
+elif args.discovery:
     if args.discovery_format == 'zabbix':
         data = []
         for station in content['stations']:
