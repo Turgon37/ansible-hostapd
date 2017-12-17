@@ -1,18 +1,30 @@
 #!/usr/bin/env python
 
+import argparse
 import json
 import os
 import re
 import subprocess
 import sys
 
+# Return dict
 content=dict({
     'stations': []
 })
 
+# Global variables
 mac_address_re = re.compile('(?P<mac>([0-9a-fA-F]:?){12})')
 mib_item_re = re.compile('(?P<key>.*)=(?P<value>.*)')
 
+# Create parser
+parser = argparse.ArgumentParser(description='Command line utility to query stations statistics from hostapd cli')
+parser.add_argument('--count', action='store_true', help='Return only the current stations count')
+parser.add_argument('--discovery', action='store_true', help='Return an array of stations attributes to use to create templated items')
+parser.add_argument('--zabbix', dest='discovery_format', nargs='?', action='store', const='zabbix', default=None, help='Return an array of stations attributes to use to create templated items')
+
+args = parser.parse_args()
+
+## RETRIEVE INFORMATIONS
 try:
     result = subprocess.Popen(['/usr/bin/env', 'hostapd_cli', '-p{{ hostapd__ctrl_interface }}', '-i{{ hostapd__interface }}', 'all_sta'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
     (stdout, stderr) = result.communicate()
@@ -33,8 +45,26 @@ except subprocess.CalledProcessError as e:
 
 content['stations_number'] = len(content['stations'])
 
+## OUTPUT
 if len(content) == 0:
     content = None
 
-print(json.dumps(content))
+if args.count:
+    print(content['stations_number'])
+if args.discovery:
+    if args.discovery_format == 'zabbix':
+        data = []
+        for station in content['stations']:
+            item = dict({'{#STAMAC}': station['mac']})
+            for key in station:
+                if key == 'mac':
+                    continue
+                item['{#STA'+key+'}'] = station[key]
+            data.append(item)
+        print(json.dumps(data))
+    else:
+        print('you must choose an output format for discovery informations')
+        sys.exit(1)
+else:
+    print(json.dumps(content))
 sys.exit(0)
