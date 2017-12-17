@@ -52,7 +52,6 @@ By default the local fact are installed and expose the following variables :
 
 
 * ```ansible_local.hostapd.version_full```
-* ```ansible_local.hostapd.version_major```
 
 
 ## Example Playbook
