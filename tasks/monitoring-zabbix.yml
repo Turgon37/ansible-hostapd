@@ -35,7 +35,7 @@
           sudo: '{{ hostapd__monitoring_use_sudo }}'
           comment: 'get the current number of stations'
         - key: hostapd.stations.discovery
-          command: "{{ zabbix_agent__custom_scripts_directory|d('/opt/zabbix-agent-scripts') }}/hostapd_cli_stations.py --discovery"
+          command: "{{ zabbix_agent__custom_scripts_directory|d('/opt/zabbix-agent-scripts') }}/hostapd_cli_stations.py --discovery --zabbix"
           sudo: '{{ hostapd__monitoring_use_sudo }}'
           comment: 'get all stations mibs in zabbix discovery format'
       state: present
