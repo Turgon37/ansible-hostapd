@@ -8,7 +8,7 @@
     mode:  0755
     state: directory
 
-- name: Install hostapd configuration file
+- name: Install hostapd stations query cli file
   template:
     src:   hostapd_cli_stations.py.j2
     dest:  "{{ zabbix_agent__custom_scripts_directory|d('/opt/zabbix-agent-scripts') }}/hostapd_cli_stations.py"
