@@ -18,10 +18,10 @@
 
 - name: Configure zabbix userparameters
   include_role:
-    name: zabbix-common
+    name: zabbix-agent
     tasks_from: userparameter
   vars:
-    zabbix_common__userparameter:
+    zabbix_agent__userparameter:
       name: hostapd
       comment: Use hostapd_cli to interogate the hostapd service
       userparameter:
