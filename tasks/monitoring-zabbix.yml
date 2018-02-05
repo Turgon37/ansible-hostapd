@@ -21,21 +21,24 @@
     name: zabbix-agent
     tasks_from: userparameter
   vars:
-    zabbix_agent__userparameter:
+    zabbix_agent__userparameters:
       name: hostapd
       comment: Use hostapd_cli to interogate the hostapd service
-      userparameter:
+      userparameters:
         - key: hostapd.ping
           command: >
             /bin/bash -c 'if hostapd_cli -p{{ hostapd__ctrl_interface }} -i{{ hostapd__interface }} ping 2>/dev/null | grep PONG 1>/dev/null 2>&1; then echo -n 1; else echo -n 0; fi'
-          sudo: '{{ hostapd__monitoring_use_sudo }}'
+          sudo: True
+          sudo_group: '{{ hostapd__ctrl_interface_group }}'
           comment: 'check if hostapd is alive'
         - key: hostapd.stations.count
           command: "{{ zabbix_agent__custom_scripts_directory|d('/opt/zabbix-agent-scripts') }}/hostapd_cli_stations.py --count"
-          sudo: '{{ hostapd__monitoring_use_sudo }}'
+          sudo: True
+          sudo_group: '{{ hostapd__ctrl_interface_group }}'
           comment: 'get the current number of stations'
         - key: hostapd.stations.discovery
           command: "{{ zabbix_agent__custom_scripts_directory|d('/opt/zabbix-agent-scripts') }}/hostapd_cli_stations.py --discovery --zabbix"
-          sudo: '{{ hostapd__monitoring_use_sudo }}'
+          sudo: True
+          sudo_group: '{{ hostapd__ctrl_interface_group }}'
           comment: 'get all stations mibs in zabbix discovery format'
       state: present

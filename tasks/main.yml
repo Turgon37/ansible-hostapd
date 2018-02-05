@@ -30,3 +30,4 @@
 
 - include_tasks: facts.yml
   when: hostapd__facts|bool
+  tags: ['hostapd', 'hostapd-facts']

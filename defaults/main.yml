@@ -14,9 +14,6 @@ hostapd__facts: True
 hostapd__packages:
   - hostapd
 
-# Use sudo to call hostapd_cli
-hostapd__monitoring_use_sudo: True
-
 # The path to the configuration file
 hostapd__config_file: /etc/hostapd/hostapd.conf
 hostapd__accept_mac_file: /etc/hostapd.accept
@@ -59,7 +56,7 @@ hostapd__ctrl_interface: /var/run/hostapd
 # configuration and open raw sockets) and still allow GUI/CLI components to be
 # run as non-root users.
 # This variable can be a group name or gid.
-hostapd__ctrl_interface_group: 0
+hostapd__ctrl_interface_group: root
 
 
 ### IEEE 802.11 related configuration
