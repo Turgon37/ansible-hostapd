@@ -21,7 +21,7 @@
     name: zabbix-agent
     tasks_from: userparameter
   vars:
-    zabbix_agent__userparameters:
+    zabbix_agent__userparameter:
       name: hostapd
       comment: Use hostapd_cli to interogate the hostapd service
       userparameters:
