@@ -2,3 +2,7 @@
 - hosts: all
   roles:
     - role_under_test
+  vars:
+    hostapd__service_configure_systemd: True
+    hostapd__service_enabled: False
+    hostapd__ssid: test_with_docker

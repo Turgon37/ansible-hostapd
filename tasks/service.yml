@@ -26,5 +26,5 @@
 - name: Ensure hostapd is started and enabled on boot
   service:
     name:    '{{ hostapd__service_name }}'
-    enabled: "{{ hostapd__service_enabled|bool }}"
+    enabled: '{{ hostapd__service_enabled|bool }}'
     state:   "{{ hostapd__service_enabled|bool|ternary('started', 'stopped') }}"
