@@ -6,3 +6,5 @@
     hostapd__service_configure_systemd: True
     hostapd__service_enabled: False
     hostapd__ssid: test_with_docker
+    hostapd__interface: eth0
+    hostapd__wpa_psk: thisisasecurepsk
