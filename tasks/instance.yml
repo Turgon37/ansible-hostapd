@@ -1,0 +1,81 @@
+---
+
+- name: Check instance prerequisites
+  assert:
+    that:
+      - hostapd__instance is defined
+      - hostapd__instance.name is defined
+    msg: hostapd__instance must be defined with specifications and hostapd__instance.name must contains the name of the instance
+  tags: ['always']
+
+
+- name: Install deny mac configuration file
+  template:
+    src:   deny_mac_file.j2
+    dest:  "{{ hostapd__deny_mac_file|replace('%i', hostapd__instance.name) }}"
+    owner: root
+    group: root
+    mode:  0644
+  when: hostapd__instance.state|d('present') == 'present'
+  register: _hostapd__instance_deny_mac
+  tags: ['hostapd', 'hostapd-configure']
+
+- name: Remove deny mac configuration file
+  file:
+    path:  "{{ hostapd__deny_mac_file|replace('%i', hostapd__instance.name) }}"
+    state: absent
+  when: hostapd__instance.state|d('present') != 'present'
+  tags: ['hostapd', 'hostapd-configure']
+
+
+- name: Install accept mac configuration file
+  template:
+    src:   accept_mac_file.j2
+    dest:  "{{ hostapd__accept_mac_file|replace('%i', hostapd__instance.name) }}"
+    owner: root
+    group: root
+    mode:  0644
+  when: hostapd__instance.state|d('present') == 'present'
+  register: _hostapd__instance_accept_mac
+  tags: ['hostapd', 'hostapd-configure']
+
+- name: Remove accept mac configuration file
+  file:
+    path:  "{{ hostapd__accept_mac_file|replace('%i', hostapd__instance.name) }}"
+    state: absent
+  when: hostapd__instance.state|d('present') != 'present'
+  tags: ['hostapd', 'hostapd-configure']
+
+
+- name: Install hostapd configuration file
+  template:
+    src:   hostapd.conf.j2
+    dest:  "{{ hostapd__config_file|replace('%i', hostapd__instance.name) }}"
+    owner: root
+    group: root
+    mode:  0644
+  when: hostapd__instance.state|d('present') == 'present'
+  register: _hostapd__instance_config
+  tags: ['hostapd', 'hostapd-configure']
+
+- name: Remove hostapd configuration file
+  file:
+    path:  "{{ hostapd__config_file|replace('%i', hostapd__instance.name) }}"
+    state: absent
+  when: hostapd__instance.state|d('present') != 'present'
+  tags: ['hostapd', 'hostapd-configure']
+
+- name: Compute service status
+  set_fact:
+    _hostapd__instance_service_status: "{{
+      'restarted' if _hostapd__instance_config is changed else
+      'reloaded' if _hostapd__instance_deny_mac is changed or _hostapd__instance_accept_mac is changed else
+      'started' }}"
+  tags: ['hostapd', 'hostapd-configure']
+
+- name: Ensure hostapd is started and enabled on boot
+  service:
+    name:    "{{ hostapd__service_name|replace('%i', hostapd__instance.name) }}"
+    enabled: "{{ hostapd__service_enabled|bool if hostapd__instance.state|d('present') == 'present' else False }}"
+    state:   "{{ (hostapd__service_enabled|bool if hostapd__instance.state|d('present') == 'present' else False)|ternary(_hostapd__instance_service_status|d('started'), 'stopped') }}"
+  tags: ['hostapd', 'hostapd-configure', 'hostapd-service']

@@ -3,8 +3,9 @@
 # {{ ansible_managed }}
 #
 
+
 ##### General configuration #######################################
-interface={{ hostapd__interface }}
+interface={{ hostapd__instance.interface }}
 
 # In case of madwifi, atheros, and nl80211 driver interfaces, an additional
 # configuration parameter, bridge, may be used to notify hostapd if the
@@ -19,52 +20,24 @@ interface={{ hostapd__interface }}
 # interface is also created.
 #bridge=br0
 
-# Driver interface type (hostap/wired/madwifi/test/none/nl80211/bsd);
-# default: hostap). nl80211 is used with all Linux mac80211 drivers.
-# Use driver=none if building hostapd as a standalone RADIUS server that does
-# not control any wireless/wired driver.
-# driver=hostap
+driver={{ hostapd__instance.driver }}
 
-# hostapd event logger configuration
-#
-# Two output method: syslog and stdout (only usable if not forking to
-# background).
-#
-# Module bitfield (ORed bitfield of modules that will be logged; -1 = all
-# modules):
-# bit 0 (1) = IEEE 802.11
-# bit 1 (2) = IEEE 802.1X
-# bit 2 (4) = RADIUS
-# bit 3 (8) = WPA
-# bit 4 (16) = driver interface
-# bit 5 (32) = IAPP
-# bit 6 (64) = MLME
-#
-# Levels (minimum value for logged events):
-#  0 = verbose debugging
-#  1 = debugging
-#  2 = informational messages
-#  3 = notification
-#  4 = warning
-#
-logger_syslog=-1
-logger_syslog_level=2
-logger_stdout=-1
-logger_stdout_level=2
+logger_syslog={{ hostapd__instance.logger_syslog }}
+logger_syslog_level={{ hostapd__instance.logger_syslog_level }}
+logger_stdout={{ hostapd__instance.logger_stdout }}
+logger_stdout_level={{ hostapd__instance.logger_stdout_level }}
 
-ctrl_interface={{ hostapd__ctrl_interface }}
-ctrl_interface_group={{ hostapd__ctrl_interface_group }}
+ctrl_interface={{ hostapd__instance.ctrl_interface|replace('%i', hostapd__instance.name) }}
+ctrl_interface_group={{ hostapd__instance.ctrl_interface_group }}
 
 
 ##### IEEE 802.11 related configuration #######################################
-ssid={{ hostapd__ssid }}
+ssid={{ hostapd__instance.ssid }}
+utf8_ssid={{ macros.bool(hostapd__instance.utf8_ssid) }}
 
-# UTF-8 SSID: Whether the SSID is to be interpreted using UTF-8 encoding
-#utf8_ssid=1
-
-country_code={{ hostapd__country_code }}
-ieee80211d={{ macros.bool(hostapd__ieee80211d|d(False)) }}
-ieee80211h={{ macros.bool(hostapd__ieee80211h|d(False)) }}
+country_code={{ hostapd__instance.country_code }}
+ieee80211d={{ macros.bool(hostapd__instance.ieee80211d) }}
+ieee80211h={{ macros.bool(hostapd__instance.ieee80211h) }}
 
 # Add Power Constraint element to Beacon and Probe Response frames
 # This config option adds Power Constraint element when applicable and Country
@@ -80,31 +53,19 @@ ieee80211h={{ macros.bool(hostapd__ieee80211h|d(False)) }}
 # ieee80211d=1 and local_pwr_constraint configured.
 #spectrum_mgmt_required=1
 
-hw_mode={{ hostapd__hw_mode }}
-channel={{ hostapd__channel }}
-acs_num_scans={{ hostapd__acs_num_scans }}
+hw_mode={{ hostapd__instance.hw_mode }}
+channel={{ hostapd__instance.channel }}
+{% if hostapd__instance.channel == 'acs_survey' %}
+acs_num_scans={{ hostapd__instance.acs_num_scans }}
+{% endif %}
+{% if hostapd__instance.chanlist|length %}
+chanlist={{ hostapd__instance.chanlist|join(' ') }}
+{% endif %}
 
-# Channel list restriction. This option allows hostapd to select one of the
-# provided channels when a channel should be automatically selected. This
-# is currently only used for DFS when the current channels becomes unavailable
-# due to radar interference, and is currently only useful when ieee80211h=1 is
-# set.
-# Default: not set (allow any enabled channel to be selected)
-#chanlist=100 104 108 112 116
+beacon_int={{ hostapd__instance.beacon_int|int }}
+dtim_period={{ hostapd__instance.dtim_period|int }}
 
-# Beacon interval in kus (1.024 ms) (default: 100; range 15..65535)
-beacon_int={{ hostapd__beacon_int | d(100) }}
-
-# DTIM (delivery traffic information message) period (range 1..255):
-# number of beacons between DTIMs (1 = every beacon includes DTIM element)
-# (default: 2)
-dtim_period=2
-
-# Maximum number of stations allowed in station table. New stations will be
-# rejected after the station table is full. IEEE 802.11 has a limit of 2007
-# different association IDs, so this number should not be larger than that.
-# (default: 2007)
-max_num_sta={{ hostapd__max_num_sta | d(255) | int }}
+max_num_sta={{ hostapd__instance.max_num_sta|int }}
 
 # RTS/CTS threshold; 2347 = disabled (default); range 0..2347
 # If this field is not included in hostapd.conf, hostapd will not control
@@ -148,38 +109,14 @@ fragm_threshold=2346
 # 1 = allow use of short preamble
 #preamble=1
 
-# Station MAC address -based authentication
-# Please note that this kind of access control requires a driver that uses
-# hostapd to take care of management frame processing and as such, this can be
-# used with driver=hostap or driver=nl80211, but not with driver=madwifi.
-# 0 = accept unless in deny list
-# 1 = deny unless in accept list
-# 2 = use external RADIUS server (accept/deny lists are searched first)
-macaddr_acl={{ hostapd__macaddr_acl | d(0) }}
+macaddr_acl={{ hostapd__instance.macaddr_acl|int }}
 
-# Accept/deny lists are read from separate files (containing list of
-# MAC addresses, one per line). Use absolute path name to make sure that the
-# files can be read on SIGHUP configuration reloads.
-accept_mac_file={{ hostapd__accept_mac_file }}
-deny_mac_file={{ hostapd__deny_mac_file }}
+accept_mac_file={{ hostapd__accept_mac_file|replace('%i', hostapd__instance.name) }}
+deny_mac_file={{ hostapd__deny_mac_file|replace('%i', hostapd__instance.name) }}
 
-# IEEE 802.11 specifies two authentication algorithms. hostapd can be
-# configured to allow both of these or only one. Open system authentication
-# should be used with IEEE 802.1X.
-# Bit fields of allowed authentication algorithms:
-# bit 0 = Open System Authentication
-# bit 1 = Shared Key Authentication (requires WEP)
-auth_algs={{ hostapd__auth_algs | d(3) }}
+auth_algs={{ hostapd__instance.auth_algs|int }}
 
-# Send empty SSID in beacons and ignore probe request frames that do not
-# specify full SSID, i.e., require stations to know SSID.
-# default: disabled (0)
-# 1 = send empty (length=0) SSID in beacon and ignore probe request for
-#     broadcast SSID
-# 2 = clear SSID (ASCII 0), but keep the original length (this may be required
-#     with some clients that do not support empty SSID) and ignore probe
-#     requests for broadcast SSID
-ignore_broadcast_ssid={{ hostapd__ignore_broadcast_ssid | d(0) }}
+ignore_broadcast_ssid={{ hostapd__instance.ignore_broadcast_ssid|int }}
 
 # Additional vendor specfic elements for Beacon and Probe Response frames
 # This parameter can be used to add additional vendor specific element(s) into
@@ -371,8 +308,9 @@ wmm_ac_vo_acm=0
 # <station count>:<channel utilization>:<available admission capacity>
 #bss_load_test=12:80:20000
 
+
 ##### IEEE 802.11n related configuration ######################################
-ieee80211n={{ macros.bool(hostapd__ieee80211n|d(False)) }}
+ieee80211n={{ macros.bool(hostapd__instance.ieee80211n) }}
 
 # ht_capab: HT capabilities (list of flags)
 # LDPC coding capability: [LDPC] = supported
@@ -419,13 +357,9 @@ ieee80211n={{ macros.bool(hostapd__ieee80211n|d(False)) }}
 # since the other parameters in the OBSS scan parameters IE are set to 0.
 #obss_interval=0
 
-##### IEEE 802.11ac related configuration #####################################
 
-# ieee80211ac: Whether IEEE 802.11ac (VHT) is enabled
-# 0 = disabled (default)
-# 1 = enabled
-# Note: You will also need to enable WMM for full VHT functionality.
-#ieee80211ac=1
+##### IEEE 802.11ac related configuration #####################################
+ieee80211ac={{ macros.bool(hostapd__instance.ieee80211ac) }}
 
 # vht_capab: VHT capabilities (list of flags)
 #
@@ -570,11 +504,11 @@ ieee80211n={{ macros.bool(hostapd__ieee80211n|d(False)) }}
 #
 #vht_oper_centr_freq_seg1_idx=159
 
+
 ##### IEEE 802.1X-2004 related configuration ##################################
+ieee8021x={{ macros.bool(hostapd__instance.ieee8021x) }}
 
-# Require IEEE 802.1X authorization
-#ieee8021x=1
-
+{% if hostapd__instance.ieee8021x|bool %}
 # IEEE 802.1X/EAPOL version
 # hostapd is implemented based on IEEE Std 802.1X-2004 which defines EAPOL
 # version 2. However, there are many client implementations that do not handle
@@ -612,6 +546,8 @@ eapol_key_index_workaround=0
 # mechanism used in wired authentication, but it also requires that the port
 # is only used by one station.
 #use_pae_group_addr=1
+{% endif %}
+
 
 ##### Integrated EAP server ###################################################
 
@@ -751,7 +687,6 @@ eap_server=0
 
 
 ##### IEEE 802.11f - Inter-Access Point Protocol (IAPP) #######################
-
 # Interface to be used for IAPP broadcast packets
 #iapp_interface=eth0
 
@@ -928,29 +863,14 @@ own_ip_addr=127.0.0.1
 
 
 ##### WPA/IEEE 802.11i configuration ##########################################
+{% if hostapd__instance.wpa is defined %}
+wpa={{ hostapd__instance.wpa|int }}
 
-# Enable WPA. Setting this variable configures the AP to require WPA (either
-# WPA-PSK or WPA-RADIUS/EAP based on other configuration). For WPA-PSK, either
-# wpa_psk or wpa_passphrase must be set and wpa_key_mgmt must include WPA-PSK.
-# Instead of wpa_psk / wpa_passphrase, wpa_psk_radius might suffice.
-# For WPA-RADIUS/EAP, ieee8021x must be set (but without dynamic WEP keys),
-# RADIUS authentication server must be configured, and WPA-EAP must be included
-# in wpa_key_mgmt.
-# This field is a bit field that can be used to enable WPA (IEEE 802.11i/D3.0)
-# and/or WPA2 (full IEEE 802.11i/RSN):
-# bit0 = WPA
-# bit1 = IEEE 802.11i/RSN (WPA2) (dot11RSNAEnabled)
-wpa={{ hostapd__wpa | d(3) }}
-
-# WPA pre-shared keys for WPA-PSK. This can be either entered as a 256-bit
-# secret in hex format (64 hex digits), wpa_psk, or as an ASCII passphrase
-# (8..63 characters) that will be converted to PSK. This conversion uses SSID
-# so the PSK changes when ASCII passphrase is used and the SSID is changed.
-{% if hostapd__wpa_psk is defined %}
-wpa_psk={{ hostapd__wpa_psk }}
-{% elif hostapd__wpa_passphrase is defined %}
-wpa_passphrase={{ hostapd__wpa_passphrase }}
-{% endif %}
+{%   if hostapd__instance.wpa_psk is defined %}
+wpa_psk={{ hostapd__instance.wpa_psk }}
+{%   elif hostapd__instance.wpa_passphrase is defined %}
+wpa_passphrase={{ hostapd__instance.wpa_passphrase }}
+{%   endif %}
 
 # Optionally, WPA PSKs can be read from a separate text file (containing list
 # of (PSK,MAC address) pairs. This allows more than one PSK to be configured.
@@ -967,24 +887,13 @@ wpa_passphrase={{ hostapd__wpa_passphrase }}
 #	Tunnel-Password
 wpa_psk_radius=0
 
-# Set of accepted key management algorithms (WPA-PSK, WPA-EAP, or both). The
-# entries are separated with a space. WPA-PSK-SHA256 and WPA-EAP-SHA256 can be
-# added to enable SHA256-based stronger algorithms.
-# (dot11RSNAConfigAuthenticationSuitesTable)
-wpa_key_mgmt={{ hostapd__wpa_key_mgmt }}
+wpa_key_mgmt={{ hostapd__instance.wpa_key_mgmt if hostapd__instance.wpa_key_mgmt is string else hostapd__instance.wpa_key_mgmt|join(' ') }}
+wpa_pairwise={{ hostapd__instance.wpa_pairwise }}
+{%   if hostapd__instance.rsn_pairwise is defined %}
+rsn_pairwise={{ hostapd__instance.rsn_pairwise }}
+{%   endif %}
+{% endif %}
 
-# Set of accepted cipher suites (encryption algorithms) for pairwise keys
-# (unicast packets). This is a space separated list of algorithms:
-# CCMP = AES in Counter mode with CBC-MAC [RFC 3610, IEEE 802.11i/D7.0]
-# TKIP = Temporal Key Integrity Protocol [IEEE 802.11i/D7.0]
-# Group cipher suite (encryption algorithm for broadcast and multicast frames)
-# is automatically selected based on this configuration. If only CCMP is
-# allowed as the pairwise cipher, group cipher will also be CCMP. Otherwise,
-# TKIP will be used as the group cipher.
-# Pairwise cipher for WPA (v1) (default: TKIP)
-wpa_pairwise={{ hostapd__wpa_pairwise }}
-# Pairwise cipher for RSN/WPA2 (default: use wpa_pairwise value)
-{% if hostapd__rsn_pairwise is defined %}rsn_pairwise={{ hostapd__rsn_pairwise }}{% endif %}
 
 # Time interval for rekeying GTK (broadcast/multicast encryption keys) in
 # seconds. (dot11RSNAConfigGroupRekeyTime)

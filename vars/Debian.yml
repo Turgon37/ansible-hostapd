@@ -1,0 +1,3 @@
+---
+
+hostapd__service_environment: /etc/default/hostapd

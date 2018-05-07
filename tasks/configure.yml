@@ -2,37 +2,10 @@
 
 - name: Install hostapd default configuration file
   template:
-    src:   default-hostapd.j2
-    dest:  '/etc/default/hostapd'
+    src:   hostapd.environment.j2
+    dest:  '{{ hostapd__service_environment }}'
     owner: root
     group: root
     mode:  0644
-  when: ansible_distribution == 'Debian'
-  notify: [ 'restart-hostapd' ]
-
-- name: Install deny mac configuration file
-  template:
-    src:   deny_mac_file.j2
-    dest:  '{{ hostapd__deny_mac_file }}'
-    owner: root
-    group: root
-    mode:  0644
-  notify: [ 'restart-hostapd' ]
-
-- name: Install accept mac configuration file
-  template:
-    src:   accept_mac_file.j2
-    dest:  '{{ hostapd__accept_mac_file }}'
-    owner: root
-    group: root
-    mode:  0644
-  notify: [ 'restart-hostapd' ]
- 
-- name: Install hostapd configuration file
-  template:
-    src:   hostapd.conf.j2
-    dest:  '{{ hostapd__config_file }}'
-    owner: root
-    group: root
-    mode:  0644
+  when: hostapd__service_environment is defined
   notify: [ 'restart-hostapd' ]

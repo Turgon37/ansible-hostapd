@@ -1,10 +1,22 @@
 ---
 
-- name: Assert required variables
+- fail:
+    msg: Using multiple instance is only available using systemd with hostapd__service_configure_systemd
+  when: not hostapd__service_configure_systemd|bool and hostapd__instances|length > 1
+
+- name: Assert required variables per instances
   assert:
     that:
-      - hostapd__ssid is defined
-      - hostapd__interface is defined
-      - hostapd__country_code is defined and hostapd__country_code|length == 2
-      - hostapd__hw_mode is defined and hostapd__hw_mode in ['a', 'b', 'g', 'ad']
-      - (hostapd__wpa_psk is defined and hostapd__wpa_passphrase is not defined) or (hostapd__wpa_psk is not defined and hostapd__wpa_passphrase is defined)
+      - hostapd__instance.interface is defined
+      - hostapd__instance.ssid is defined
+      - hostapd__instance.country_code is defined and hostapd__instance.country_code|length == 2
+      - hostapd__instance.hw_mode is defined and hostapd__instance.hw_mode in ['a', 'b', 'g', 'ad']
+      - hostapd__instance.beacon_int is defined and 15 <= hostapd__instance.beacon_int and hostapd__instance.beacon_int <= 65535
+      - hostapd__instance.macaddr_acl is defined and hostapd__instance.macaddr_acl in [0, 1, 2]
+      - hostapd__instance.auth_algs is defined and hostapd__instance.auth_algs in [0, 1]
+      - hostapd__instance.ignore_broadcast_ssid is defined and hostapd__instance.ignore_broadcast_ssid in [0, 1, 2]
+  vars:
+    hostapd__instance: "{{ hostapd__instance_defaults|combine(outer_item.value)|combine({'name': outer_item.key}) }}"
+  with_dict: '{{ hostapd__instances }}'
+  loop_control:
+    loop_var: outer_item

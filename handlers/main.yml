@@ -3,5 +3,6 @@
 
 - name: restart-hostapd
   service:
-    name: '{{ hostapd__service_name }}'
+    name:  "{{ hostapd__service_name|replace('%i', item) }}"
     state: restarted
+  with_items: '{{ hostapd__instances.keys() }}'

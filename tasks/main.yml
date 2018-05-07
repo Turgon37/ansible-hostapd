@@ -2,13 +2,13 @@
 # tasks file for hostapd
 
 - name: Include the OS specific variables
-  include_vars: "{{ item }}"
+  include_vars: '{{ item }}'
   with_first_found:
     - files:
-        - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yml"
-        - "{{ ansible_distribution }}.yml"
-        - "{{ ansible_os_family }}.yml"
-        - "defaults.yml"
+        - '{{ ansible_distribution }}-{{ ansible_distribution_version }}.yml'
+        - '{{ ansible_distribution }}.yml'
+        - '{{ ansible_os_family }}.yml'
+        - defaults.yml
       skip: true
   tags: ['always']
 
@@ -24,9 +24,17 @@
 - import_tasks: service.yml
   tags: ['hostapd', 'hostapd-service']
 
-- include_tasks: 'monitoring-{{ hostapd__monitoring }}.yml'
-  when: hostapd__monitoring is defined
-  tags: ['hostapd', 'hostapd-monitoring']
+- include_tasks: instance.yml
+  vars:
+    hostapd__instance: "{{ hostapd__instance_defaults|combine(outer_item.value)|combine({'name': outer_item.key}) }}"
+  with_dict: '{{ hostapd__instances }}'
+  loop_control:
+    loop_var: outer_item
+  tags: ['hostapd', 'hostapd-configure']
+
+#- include_tasks: 'monitoring-{{ hostapd__monitoring }}.yml'
+  #when: hostapd__monitoring is defined
+  #tags: ['hostapd', 'hostapd-monitoring']
 
 - include_tasks: facts.yml
   when: hostapd__facts|bool

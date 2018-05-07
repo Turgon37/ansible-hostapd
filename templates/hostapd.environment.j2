@@ -1,11 +1,6 @@
 # 
 # {{ ansible_managed }}
 #
-# Defaults for hostapd initscript
-#
-# Uncomment and set DAEMON_CONF to the absolute path of a hostapd configuration
-# file and hostapd will be started during system boot.
-DAEMON_CONF="{{ hostapd__config_file }}"
 
 # Additional daemon options to be appended to hostapd command:-
 #       -d   show more debug messages (-dd for even more)
@@ -14,5 +9,4 @@ DAEMON_CONF="{{ hostapd__config_file }}"
 #
 # Note that -B (daemon mode) and -P (pidfile) options are automatically
 # configured by the init.d script and must not be added to DAEMON_OPTS.
-#
-#DAEMON_OPTS=""
+DAEMON_OPTS=""
