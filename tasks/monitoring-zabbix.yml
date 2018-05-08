@@ -1,20 +1,22 @@
 ---
 
-- name: Create custom scripts directory
-  file:
-    path:  "{{ zabbix_agent__custom_scripts_directory|d('/opt/zabbix-agent-scripts') }}"
-    owner: root
-    group: root
-    mode:  0755
-    state: directory
+#- name: Create custom scripts directory
+  #file:
+    #path:  "{{ zabbix_agent__custom_scripts_directory|d('/opt/zabbix-agent-scripts') }}"
+    #owner: root
+    #group: root
+    #mode:  0755
+    #state: directory
+  #tags: ['hostapd', 'hostapd-monitoring']
 
-- name: Install hostapd stations query cli file
-  template:
-    src:   hostapd_cli_stations.py.j2
-    dest:  "{{ zabbix_agent__custom_scripts_directory|d('/opt/zabbix-agent-scripts') }}/hostapd_cli_stations.py"
-    owner: root
-    group: root
-    mode:  0755
+#- name: Install hostapd stations query cli file
+  #template:
+    #src:   hostapd_cli_stations.py.j2
+    #dest:  "{{ zabbix_agent__custom_scripts_directory|d('/opt/zabbix-agent-scripts') }}/hostapd_cli_stations.py"
+    #owner: root
+    #group: root
+    #mode:  0755
+  #tags: ['hostapd', 'hostapd-monitoring']
 
 - name: Configure zabbix userparameters
   include_role:
@@ -25,20 +27,25 @@
       name: hostapd
       comment: Use hostapd_cli to interogate the hostapd service
       userparameters:
-        - key: hostapd.ping
+        - key: hostapd.discovery
           command: >
-            /bin/bash -c 'if hostapd_cli -p{{ hostapd__ctrl_interface }} -i{{ hostapd__interface }} ping 2>/dev/null | grep PONG 1>/dev/null 2>&1; then echo -n 1; else echo -n 0; fi'
+            /usr/bin/env python -c 'import json, sys; json.dump({"data": list(map(lambda x: {"{"+"#HOSTAPD_INSTANCE}": x}, {{ hostapd__instances.keys()|to_json}} ))}, sys.stdout)'
+          comment: return zabbix discovery item for hostapd instances
+        - key: hostapd.ping[*]
+          command: >
+            /bin/bash -c 'if hostapd_cli -p{{ hostapd__instance_defaults.ctrl_interface|replace('%i', '$1') }} ping 2>/dev/null | grep PONG 1>/dev/null 2>&1; then echo -n 1; else echo -n 0; fi'
           sudo: True
           sudo_group: '{{ hostapd__ctrl_interface_group }}'
-          comment: 'check if hostapd is alive'
-        - key: hostapd.stations.count
-          command: "{{ zabbix_agent__custom_scripts_directory|d('/opt/zabbix-agent-scripts') }}/hostapd_cli_stations.py --count"
-          sudo: True
-          sudo_group: '{{ hostapd__ctrl_interface_group }}'
-          comment: 'get the current number of stations'
-        - key: hostapd.stations.discovery
-          command: "{{ zabbix_agent__custom_scripts_directory|d('/opt/zabbix-agent-scripts') }}/hostapd_cli_stations.py --discovery --zabbix"
-          sudo: True
-          sudo_group: '{{ hostapd__ctrl_interface_group }}'
-          comment: 'get all stations mibs in zabbix discovery format'
+          comment: check if hostapd is alive
+        #- key: hostapd.stations.count
+          #command: "{{ zabbix_agent__custom_scripts_directory|d('/opt/zabbix-agent-scripts') }}/hostapd_cli_stations.py --count"
+          #sudo: True
+          #sudo_group: '{{ hostapd__ctrl_interface_group }}'
+          #comment: 'get the current number of stations'
+        #- key: hostapd.stations.discovery
+          #command: "{{ zabbix_agent__custom_scripts_directory|d('/opt/zabbix-agent-scripts') }}/hostapd_cli_stations.py --discovery --zabbix"
+          #sudo: True
+          #sudo_group: '{{ hostapd__ctrl_interface_group }}'
+          #comment: 'get all stations mibs in zabbix discovery format'
       state: present
+  tags: ['hostapd', 'hostapd-monitoring']

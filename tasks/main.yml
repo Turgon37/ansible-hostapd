@@ -32,9 +32,9 @@
     loop_var: outer_item
   tags: ['hostapd', 'hostapd-configure']
 
-#- include_tasks: 'monitoring-{{ hostapd__monitoring }}.yml'
-  #when: hostapd__monitoring is defined
-  #tags: ['hostapd', 'hostapd-monitoring']
+- include_tasks: 'monitoring-{{ hostapd__monitoring }}.yml'
+  when: hostapd__monitoring is defined
+  tags: ['hostapd', 'hostapd-monitoring']
 
 - include_tasks: facts.yml
   when: hostapd__facts|bool
