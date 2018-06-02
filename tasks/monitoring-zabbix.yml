@@ -29,7 +29,7 @@
       userparameters:
         - key: hostapd.discovery
           command: >
-            /usr/bin/env python -c 'import json, sys; json.dump({"data": list(map(lambda x: {"{"+"#HOSTAPD_INSTANCE}": x}, {{ hostapd__instances.keys()|to_json}} ))}, sys.stdout)'
+            /usr/bin/env python -c 'import json, sys; json.dump({"data": list(map(lambda x: {"{"+"#HOSTAPD_INSTANCE}": x}, {{ hostapd__instances.keys()|list|to_json}} ))}, sys.stdout)'
           comment: return zabbix discovery item for hostapd instances
         - key: hostapd.ping[*]
           command: >

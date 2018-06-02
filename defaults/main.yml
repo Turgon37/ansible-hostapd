@@ -17,6 +17,7 @@ hostapd__packages:
 # Dict of hostapd instances
 hostapd__instances: {}
 
+
 ### SERVICE CONFIGURATION
 # The name of the service to use
 hostapd__service_name: 'hostapd{% if hostapd__service_configure_systemd|bool %}@%i{% endif %}'
