@@ -33,9 +33,10 @@
           comment: return zabbix discovery item for hostapd instances
         - key: hostapd.ping[*]
           command: >
-            /bin/bash -c 'if hostapd_cli -p{{ hostapd__instance_defaults.ctrl_interface|replace('%i', '$1') }} ping 2>/dev/null | grep PONG 1>/dev/null 2>&1; then echo -n 1; else echo -n 0; fi'
-          sudo: True
+            /usr/bin/env hostapd_cli -p{{ hostapd__instance_defaults.ctrl_interface|replace('%i', '$1') }} ping 2>/dev/null | grep -c PONG
+          sudo: true
           sudo_group: '{{ hostapd__ctrl_interface_group }}'
+          sudo_command: /usr/bin/env hostapd_cli -p[a-zA-Z-/.$]* ping
           comment: check if hostapd is alive
         #- key: hostapd.stations.count
           #command: "{{ zabbix_agent__custom_scripts_directory|d('/opt/zabbix-agent-scripts') }}/hostapd_cli_stations.py --count"

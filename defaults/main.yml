@@ -1,24 +1,22 @@
 ---
 # defaults file for hostapd
 
-# Simple placeholder to allow other roles to detect this role
-hostapd__role: True
-
 # Enable facts deploiement
 hostapd__facts: True
 
 # Choose the monitoring backend to configure (if available)
 #hostapd__monitoring:
 
+
+### INSTALL CONFIGURATION
+# ---------------------------------------
 # List of required packages
 hostapd__packages:
   - hostapd
 
-# Dict of hostapd instances
-hostapd__instances: {}
-
 
 ### SERVICE CONFIGURATION
+# ---------------------------------------
 # The name of the service to use
 hostapd__service_name: 'hostapd{% if hostapd__service_configure_systemd|bool %}@%i{% endif %}'
 hostapd__service_enabled: True
@@ -38,6 +36,11 @@ hostapd__config_file: /etc/hostapd/hostapd.%i.conf
 hostapd__accept_mac_file: /etc/hostapd/hostapd.%i.accept
 hostapd__deny_mac_file: /etc/hostapd/hostapd.%i.deny
 
+
+### HOSTAPD CONFIGURATION
+# ---------------------------------------
+# Dict of hostapd instances
+hostapd__instances: {}
 
 ### General configuration
 # default group for control sockets
